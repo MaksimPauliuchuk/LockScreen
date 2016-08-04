@@ -1,6 +1,5 @@
 package com.mpau.lockscreen;
 
-import android.app.KeyguardManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
