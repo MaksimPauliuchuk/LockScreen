@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
     `id` INT(11) unsigned NOT NULL AUTO_INCREMENT,
     `login` VARCHAR(45) NOT NULL,
-    `password` VARCHAR(45) NOT NULL,
+    `password` VARCHAR(200) NOT NULL,
     `email` VARCHAR(45) NOT NULL,
     `phone` VARCHAR(45) NOT NULL,
     `fk_group` INT(11) unsigned NOT NULL,
@@ -88,9 +88,12 @@ DROP procedure IF EXISTS `user_get_by_id`;
 DROP procedure IF EXISTS `user_get_by_login`;
 
 DROP procedure IF EXISTS `token_add`;
+DROP procedure IF EXISTS `token_get`;
+DROP procedure IF EXISTS `token_update_time`;
+DROP procedure IF EXISTS `token_delele_by_value`;
 
 DELIMITER ;;
-CREATE PROCEDURE `user_add` (a_login VARCHAR(45), a_password VARCHAR(45), a_email VARCHAR(45), a_phone VARCHAR(45), a_fk_group INT(10))
+CREATE PROCEDURE `user_add` (a_login VARCHAR(45), a_password VARCHAR(200), a_email VARCHAR(45), a_phone VARCHAR(45), a_fk_group INT(10))
 BEGIN
     INSERT INTO `lockscreen_db`.`users`
         (`login`,
@@ -104,6 +107,7 @@ BEGIN
         a_email,
         a_phone,
         a_fk_group);
+    SELECT LAST_INSERT_ID() as 'id';
 END ;;
 
 CREATE PROCEDURE `user_get_by_id` (a_id INT(10))
@@ -132,7 +136,7 @@ BEGIN
     WHERE `login` = a_login;
 END ;;
 
-CREATE PROCEDURE `token_add` (a_token VARCHAR(45), a_time TIMESTAMP, a_fk_user INT(10))
+CREATE PROCEDURE `token_add` (a_token VARCHAR(45), a_fk_user INT(10))
 BEGIN
     INSERT INTO `lockscreen_db`.`tokens`
         (`token`,
@@ -140,27 +144,33 @@ BEGIN
         `fk_user`)
     VALUES
         (a_token, 
-        a_time,
+        NOW(),
         a_fk_user);
+    SELECT LAST_INSERT_ID() as 'id';
 END ;;
 
 CREATE PROCEDURE `token_get` (a_token VARCHAR(45))
 BEGIN
     SELECT 
         `id`,
-        `token`,
         `time`,
         `fk_user`
     FROM `lockscreen_db`.`tokens` 
     WHERE `token` = a_token;
 END ;;
 
-CREATE PROCEDURE `token_update_time` (a_id INT(10), a_time TIMESTAMP)
+CREATE PROCEDURE `token_update_time` (a_id INT(10))
 BEGIN
     UPDATE `lockscreen_db`.`tokens`
     SET
-        `time` = a_time
+        `time` = NOW()
     WHERE `id` = a_id;
+END ;;
+
+CREATE PROCEDURE `token_delele_by_value`(a_token VARCHAR(45))
+BEGIN
+    DELETE FROM `lockscreen_db`.`tokens`
+    WHERE `tokens`.`token` = a_token;
 END ;;
 
 DELIMITER ;
